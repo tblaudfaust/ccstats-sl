@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Run as root on the VPS. Installs Docker, deploys Odoo 18 CE + Postgres 16 with OCA addons,
-# and publishes it as https://crm.DOMAIN through the existing FreePBX Apache.
-# Usage: bash 02-odoo-stack.sh crm.example.com admin@example.com
+# and publishes it as https://HOST:8443 through the existing FreePBX Apache (FreePBX stays on 443).
+# Usage: bash 02-odoo-stack.sh ccstats.statistics.sl [letsencrypt-email]
 set -euo pipefail
-CRM_HOST="${1:?usage: 02-odoo-stack.sh <crm.hostname> <letsencrypt-email>}"
-LE_EMAIL="${2:?}"
+CRM_HOST="${1:?usage: 02-odoo-stack.sh <hostname> [letsencrypt-email]}"
+LE_EMAIL="${2:-}"
 STACK=/opt/odoo-stack
 SRC="$(cd "$(dirname "$0")/.." && pwd)"   # repo copy rsynced to the server
 
@@ -58,14 +58,15 @@ if ! docker compose run --rm odoo odoo -d crm --db_host=db --db_user=odoo --db_p
 fi
 docker compose up -d
 
-echo "== Apache vhost + TLS"
+echo "== TLS certificate (Let's Encrypt via FreePBX's port-80 docroot)"
 apt-get install -y -q certbot
+if [ ! -d "/etc/letsencrypt/live/${CRM_HOST}" ]; then
+  if [ -n "$LE_EMAIL" ]; then EMAILOPT="-m ${LE_EMAIL}"; else EMAILOPT="--register-unsafely-without-email"; fi
+  certbot certonly --webroot -w /var/www/html -d "$CRM_HOST" $EMAILOPT --agree-tos --non-interactive
+fi
+
+echo "== Apache vhost on 8443"
 a2enmod proxy proxy_http proxy_wstunnel headers ssl rewrite >/dev/null
-mkdir -p /var/www/acme
-sed "s/CRM_HOST/${CRM_HOST}/g" apache/crm-http.conf > /etc/apache2/sites-available/crm-http.conf
-a2ensite crm-http >/dev/null
-apache2ctl configtest && systemctl reload apache2
-certbot certonly --webroot -w /var/www/acme -d "$CRM_HOST" -m "$LE_EMAIL" --agree-tos --non-interactive
 sed "s/CRM_HOST/${CRM_HOST}/g" apache/crm-https.conf > /etc/apache2/sites-available/crm-https.conf
 a2ensite crm-https >/dev/null
 apache2ctl configtest && systemctl reload apache2
@@ -75,4 +76,4 @@ systemctl reload apache2
 HOOK
 chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-apache.sh
 
-echo "== done: https://${CRM_HOST}  (master password in ${STACK}/.env)"
+echo "== done: https://${CRM_HOST}:8443  (master password in ${STACK}/.env)"
