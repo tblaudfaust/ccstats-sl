@@ -21,7 +21,7 @@ with contact match, and a call log. Everything is AGPL/GPL, no license fees.
 
 | Component | Where | Status |
 |---|---|---|
-| FreePBX 17.0.33 / Asterisk 22.11 | https://ccstats.statistics.sl (admin + UCP, office IP only) | installed, **setup wizard not yet completed** |
+| FreePBX 17.0.33 / Asterisk 22.11 | https://ccstats.statistics.sl (whole site office-IP only via /etc/apache2/admin-restrict.inc; ACME path open) | installed, **setup wizard not yet completed** |
 | Odoo 18 CE + CRM, Contacts, Helpdesk, voip_oca | https://ccstats.statistics.sl:8443 | live, default admin login `admin`/`admin` → change it |
 | Agent extensions 1001-1030 | pjsip, WebRTC, recording forced, voicemail | created; secrets in `/root/agent-extensions.csv` on the VPS |
 | Odoo agent users 1001-1030 | login = extension, phone credentials pre-filled, no password yet | created; admin sets passwords and real names |
