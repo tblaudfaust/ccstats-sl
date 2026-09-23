@@ -1,0 +1,12 @@
+# secrets and generated data
+odoo/.env
+*.dump
+filestore-*/
+agent-extensions.csv
+# cloned OCA addons (fetched by scripts/local-up.ps1 and scripts/02-odoo-stack.sh)
+odoo/addons/
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

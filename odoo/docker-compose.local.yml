@@ -1,0 +1,10 @@
+# Local override for Docker Desktop:  docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
+# Exposes Odoo on http://localhost:8069 directly (no Apache/TLS), keeps the same volumes and addons.
+services:
+  odoo:
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+    volumes:
+      - ./config/odoo.local.conf:/etc/odoo/odoo.conf:ro
+      - odoo-data:/var/lib/odoo
