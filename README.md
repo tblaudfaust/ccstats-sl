@@ -17,6 +17,22 @@ Odoo does not talk to Asterisk over AMI. Each agent's browser registers to FreeP
 WebRTC extension through the OCA `voip_oca` module, which gives click-to-call, inbound screen pop
 with contact match, and a call log. Everything is AGPL/GPL, no license fees.
 
+## Live state (2026-09-23)
+
+| Component | Where | Status |
+|---|---|---|
+| FreePBX 17.0.33 / Asterisk 22.11 | https://ccstats.statistics.sl (admin + UCP, office IP only) | installed, **setup wizard not yet completed** |
+| Odoo 18 CE + CRM, Contacts, Helpdesk, voip_oca | https://ccstats.statistics.sl:8443 | live, default admin login `admin`/`admin` → change it |
+| Agent extensions 1001-1030 | pjsip, WebRTC, recording forced, voicemail | created; secrets in `/root/agent-extensions.csv` on the VPS |
+| Odoo agent users 1001-1030 | login = extension, phone credentials pre-filled, no password yet | created; admin sets passwords and real names |
+| Transports | UDP/TCP 5060, TLS 5061, WS 8088, WSS 8089 | up, Let's Encrypt cert, auto-renew hooks installed |
+| Trunks Africell / Qcell | Connectivity > Trunks | waiting on operator specs |
+| FreePBX firewall | disabled | enable from the web UI wizard only (CLI start locked out the trusted IP) |
+| hPanel firewall | docs/hostinger-firewall.md | not yet applied |
+
+Lessons: `fwconsole firewall start` from the CLI dropped the trusted IP; disabling the firewall flushes
+Docker's iptables chains (a cron watchdog restarts Docker when the DOCKER-FORWARD chain is missing).
+
 ## What you do (once)
 
 1. hPanel > VPS > buy/choose **KVM 4**, location **Netherlands** or **United Kingdom** (shortest path to the ACE cable landing in Freetown).
