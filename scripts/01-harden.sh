@@ -58,7 +58,7 @@ fi
 echo "== FreePBX firewall: trust office IP, enable responsive firewall"
 fwconsole firewall add trusted "$OFFICE_IP" || true
 [ -n "$SECOND_IP" ] && fwconsole firewall add trusted "$SECOND_IP" || true
-fwconsole firewall enable || true
+fwconsole firewall start || true
 fwconsole firewall lerules enable || true
 
 echo "== FreePBX modules up to date"
